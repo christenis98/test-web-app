@@ -8,7 +8,24 @@
   <body>
     <h1>Examen Tipo Test</h1>
     <form id="testForm"></form>
+    <label for="answersUpload">Upload Answers Excel:</label>
+    <input type="file" id="answersUpload" accept=".xlsx" required />
+    <br /><br />
     <button id="checkAnswers">Comprobar Respuestas</button>
     <pre id="result"></pre>
+    <script>
+      document
+        .getElementById("checkAnswers")
+        .addEventListener("click", async () => {
+          const answersFile = document.getElementById("answersUpload").files[0];
+
+          if (!answersFile) {
+            alert("Por favor, sube el archivo de respuestas.");
+            return;
+          }
+
+          // Aquí puedes agregar la lógica para procesar el archivo de respuestas
+        });
+    </script>
   </body>
 </html>

@@ -1,9 +1,8 @@
 document.getElementById("processFiles").addEventListener("click", async () => {
   const questionsFile = document.getElementById("questionsUpload").files[0];
-  const answersFile = document.getElementById("answersUpload").files[0];
 
-  if (!questionsFile || !answersFile) {
-    alert("Por favor, sube ambos archivos de preguntas y respuestas.");
+  if (!questionsFile) {
+    alert("Por favor, sube el archivo de preguntas.");
     return;
   }
 

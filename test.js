@@ -21,22 +21,64 @@ document.addEventListener("DOMContentLoaded", () => {
     form.appendChild(questionDiv);
   });
 
-  document.getElementById("checkAnswers").addEventListener("click", (event) => {
-    event.preventDefault();
-    checkAnswers(questions);
-  });
+  document
+    .getElementById("checkAnswers")
+    .addEventListener("click", async (event) => {
+      event.preventDefault();
+      const answersFile = document.getElementById("answersUpload").files[0];
+      if (!answersFile) {
+        alert("Por favor, sube el archivo de respuestas.");
+        return;
+      }
+      const answers = await getAnswersFromExcel(answersFile);
+      checkAnswers(questions, answers);
+    });
 });
 
-function checkAnswers(questions) {
+async function getAnswersFromExcel(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const answers = XLSX.utils.sheet_to_json(sheet);
+      resolve(answers);
+    };
+    reader.onerror = (error) => reject(error);
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function checkAnswers(questions, answers) {
   const form = document.getElementById("testForm");
   const result = document.getElementById("result");
   let correctCount = 0;
 
   questions.forEach((question, index) => {
     const selectedOption = form[`question${index}`].value;
-    if (selectedOption === question.Correcta) {
-      correctCount++;
-    }
+    const questionNumber = question.Pregunta.match(/^\d{1,3}/)[0];
+    const correctAnswer = answers.find((answer) =>
+      answer.Pregunta.startsWith(questionNumber)
+    );
+
+    const inputs = form.querySelectorAll(`input[name="question${index}"]`);
+    inputs.forEach((input) => {
+      const label = input.parentElement; // Obtener el elemento padre que contiene el input y el texto
+      label.style.color = ""; // Reset color
+
+      if (correctAnswer) {
+        const correctOption = correctAnswer["Respuesta Correcta"];
+        if (input.checked) {
+          if (input.value.toLowerCase() === correctOption) {
+            label.style.color = "green";
+            correctCount++;
+          } else {
+            label.style.color = "red";
+          }
+        }
+      }
+    });
   });
 
   result.textContent = `Respuestas correctas: ${correctCount} de ${questions.length}`;
