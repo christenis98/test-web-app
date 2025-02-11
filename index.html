@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Upload Excel Files</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  </head>
+  <body>
+    <h1>Upload Files</h1>
+    <label for="questionsUpload">Upload Questions Excel:</label>
+    <input type="file" id="questionsUpload" accept=".xlsx" required />
+    <br /><br />
+    <label for="answersUpload">Upload Answers Excel:</label>
+    <input type="file" id="answersUpload" accept=".xlsx" required />
+    <br /><br />
+    <button id="processFiles">Procesar Archivos</button>
+    <pre id="output"></pre>
+    <!-- Aquí se mostrará el texto extraído -->
+    <h2>Temas disponibles:</h2>
+    <ul id="temaList"></ul>
+    <!-- Lista de temas clickeables -->
+
+    <script src="script.js"></script>
+  </body>
+</html>

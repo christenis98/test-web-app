@@ -1,0 +1,4 @@
+# Ignorar todos los archivos .xlsx y .py en Web-Pitora y sus subcarpetas
+*.xlsx
+*.py
+
