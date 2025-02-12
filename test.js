@@ -56,7 +56,7 @@ function checkAnswers(questions, answers) {
   let correctCount = 0;
 
   questions.forEach((question, index) => {
-    const selectedOption = form[`question${index}`].value;
+    const selectedInput = form[`question${index}`].value;
     const questionNumber = question.Pregunta.match(/^\d{1,3}/)[0];
     const correctAnswer = answers.find((answer) =>
       answer.Pregunta.startsWith(questionNumber)
@@ -68,9 +68,12 @@ function checkAnswers(questions, answers) {
       label.style.color = ""; // Reset color
 
       if (correctAnswer) {
-        const correctOption = correctAnswer["Respuesta Correcta"];
+        const correctOption = correctAnswer["Respuesta Correcta"].toLowerCase();
+        const labelText = label.textContent.trim();
+        const selectedOption = labelText.charAt(0).toLowerCase(); // Obtener la primera letra del contenido de la etiqueta
+
         if (input.checked) {
-          if (input.value.toLowerCase() === correctOption) {
+          if (selectedOption === correctOption) {
             label.style.color = "green";
             correctCount++;
           } else {
