@@ -4,15 +4,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   questions.forEach((question, index) => {
     const questionDiv = document.createElement("div");
+    questionDiv.className = "question-container";
     questionDiv.innerHTML = `<p>${question.Pregunta}</p>`;
 
     ["A", "B", "C", "D"].forEach((option) => {
       if (question[`Respuesta ${option}`]) {
         const label = document.createElement("label");
+        label.className = "option-label";
         label.innerHTML = `
-                    <input type="radio" name="question${index}" value="${option}">
-                    ${question[`Respuesta ${option}`]}
-                `;
+          <input type="radio" name="question${index}" value="${option}">
+          ${question[`Respuesta ${option}`]}
+        `;
         questionDiv.appendChild(label);
         questionDiv.appendChild(document.createElement("br"));
       }
@@ -65,7 +67,7 @@ function checkAnswers(questions, answers) {
     const inputs = form.querySelectorAll(`input[name="question${index}"]`);
     inputs.forEach((input) => {
       const label = input.parentElement; // Obtener el elemento padre que contiene el input y el texto
-      label.style.color = ""; // Reset color
+      label.classList.remove("correct", "incorrect"); // Reset classes
 
       if (correctAnswer) {
         const correctOption = correctAnswer["Respuesta Correcta"].toLowerCase();
@@ -74,10 +76,10 @@ function checkAnswers(questions, answers) {
 
         if (input.checked) {
           if (selectedOption === correctOption) {
-            label.style.color = "green";
+            label.classList.add("correct");
             correctCount++;
           } else {
-            label.style.color = "red";
+            label.classList.add("incorrect");
           }
         }
       }

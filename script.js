@@ -30,6 +30,7 @@ function displayThemes(themes) {
   themes.forEach((theme) => {
     const li = document.createElement("button");
     li.textContent = theme;
+    li.className = "theme-button";
     li.addEventListener("click", () => displayQuestionButtons(theme));
     temaList.appendChild(li);
   });
@@ -47,6 +48,7 @@ async function displayQuestionButtons(theme) {
     const end = Math.min(i + 20, totalQuestions);
     const button = document.createElement("button");
     button.textContent = `Preguntas ${start}-${end}`;
+    button.className = "question-range-button";
     button.addEventListener("click", () => {
       localStorage.setItem(
         "questions",
