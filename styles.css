@@ -11,7 +11,8 @@ body {
 }
 
 /* Headings */
-h1, h2 {
+h1,
+h2 {
   text-align: center;
   color: #2c3e50;
   margin-bottom: 20px;
@@ -58,12 +59,12 @@ label {
   display: block;
   margin: 10px auto;
   font-weight: bold;
-  text-align: center;
+  text-align: left;
 }
 
 /* Forms */
 form {
-  max-width: 600px;
+  max-width: 1000px;
   margin: 20px auto;
   padding: 20px;
   background-color: #ffffff;

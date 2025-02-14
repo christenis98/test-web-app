@@ -58,29 +58,38 @@ function checkAnswers(questions, answers) {
   let correctCount = 0;
 
   questions.forEach((question, index) => {
-    const selectedInput = form[`question${index}`].value;
+    const selectedOption = form[`question${index}`].value;
     const questionNumber = question.Pregunta.match(/^\d{1,3}/)[0];
     const correctAnswer = answers.find((answer) =>
-      answer.Pregunta.startsWith(questionNumber)
+      String(answer.Pregunta).startsWith(questionNumber)
     );
 
     const inputs = form.querySelectorAll(`input[name="question${index}"]`);
     inputs.forEach((input) => {
-      const label = input.parentElement; // Obtener el elemento padre que contiene el input y el texto
-      label.classList.remove("correct", "incorrect"); // Reset classes
+      const label = input.parentElement;
 
       if (correctAnswer) {
-        const correctOption = correctAnswer["Respuesta Correcta"].toLowerCase();
-        const labelText = label.textContent.trim();
-        const selectedOption = labelText.charAt(0).toLowerCase(); // Obtener la primera letra del contenido de la etiqueta
+        const correctOption = correctAnswer["Respuesta Correcta"];
 
-        if (input.checked) {
-          if (selectedOption === correctOption) {
-            label.classList.add("correct");
-            correctCount++;
-          } else {
-            label.classList.add("incorrect");
-          }
+        // Marcar la respuesta correcta en verde
+        if (input.value.toLowerCase() === correctOption.toLowerCase()) {
+          label.style.color = "green";
+        }
+
+        // Si es la respuesta seleccionada y es incorrecta, marcarla en rojo
+        if (
+          input.checked &&
+          input.value.toLowerCase() !== correctOption.toLowerCase()
+        ) {
+          label.style.color = "red";
+        }
+
+        // Contar respuesta correcta
+        if (
+          input.checked &&
+          input.value.toLowerCase() === correctOption.toLowerCase()
+        ) {
+          correctCount++;
         }
       }
     });
