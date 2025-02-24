@@ -74,9 +74,12 @@ function checkAnswers(questions, answers) {
         const labelText = label.textContent.trim();
         const optionLetter = labelText.charAt(0).toLowerCase(); // Obtener la primera letra del contenido de la etiqueta
 
+        if (optionLetter === correctOption) {
+          label.style.color = "green"; // Mostrar siempre la respuesta correcta en verde
+        }
+
         if (input.checked) {
           if (optionLetter === correctOption) {
-            label.style.color = "green";
             correctCount++;
           } else {
             label.style.color = "red";
