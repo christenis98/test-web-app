@@ -3,18 +3,22 @@
   <head>
     <title>Upload Excel Files</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <h1>Upload Files</h1>
-    <label for="questionsUpload">Upload Questions Excel:</label>
-    <input type="file" id="questionsUpload" accept=".xlsx" required />
-    <br /><br />
-    <button id="processFiles">Procesar Archivos</button>
-    <pre id="output"></pre>
-    <!-- Aquí se mostrará el texto extraído -->
-    <h2>Temas disponibles:</h2>
-    <ul id="temaList"></ul>
-    <!-- Lista de temas clickeables -->
+    <div class="container">
+      <h1>Upload Files</h1>
+      <form class="upload-form">
+        <label for="questionsUpload">Upload Questions Excel:</label>
+        <input type="file" id="questionsUpload" accept=".xlsx" required />
+        <button id="processFiles" class="btn">Procesar Archivos</button>
+      </form>
+      <pre id="output" class="output"></pre>
+      <!-- Aquí se mostrará el texto extraído -->
+      <h2>Temas disponibles:</h2>
+      <ul id="temaList" class="theme-list"></ul>
+      <!-- Lista de temas clickeables -->
+    </div>
 
     <script src="script.js"></script>
   </body>

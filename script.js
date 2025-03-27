@@ -1,4 +1,5 @@
-document.getElementById("processFiles").addEventListener("click", async () => {
+document.getElementById("processFiles").addEventListener("click", async (e) => {
+  e.preventDefault(); // Prevenir comportamiento por defecto
   const questionsFile = document.getElementById("questionsUpload").files[0];
 
   if (!questionsFile) {
@@ -6,8 +7,13 @@ document.getElementById("processFiles").addEventListener("click", async () => {
     return;
   }
 
-  const themes = await getThemesFromExcel(questionsFile);
-  displayThemes(themes);
+  try {
+    const themes = await getThemesFromExcel(questionsFile);
+    displayThemes(themes);
+  } catch (error) {
+    console.error("Error processing files:", error);
+    alert("Error al procesar los archivos");
+  }
 });
 
 async function getThemesFromExcel(file) {
@@ -26,19 +32,28 @@ async function getThemesFromExcel(file) {
 
 function displayThemes(themes) {
   const temaList = document.getElementById("temaList");
+  const output = document.getElementById("output");
+  
+  // Limpiar contenedores
   temaList.innerHTML = "";
+  output.innerHTML = "";
+  
   themes.forEach((theme) => {
     const li = document.createElement("button");
     li.textContent = theme;
-    li.addEventListener("click", () => displayQuestionButtons(theme));
+    li.addEventListener("click", (e) => {
+      e.preventDefault(); // Prevenir comportamiento por defecto
+      displayQuestionButtons(theme);
+    });
     temaList.appendChild(li);
   });
 }
-
 async function displayQuestionButtons(theme) {
   const questionsFile = document.getElementById("questionsUpload").files[0];
   const questions = await getQuestionsFromExcel(questionsFile, theme);
   const buttonContainer = document.getElementById("output");
+  
+  // Limpiar solo el contenedor de botones de preguntas
   buttonContainer.innerHTML = "";
 
   const totalQuestions = questions.length;
@@ -47,7 +62,8 @@ async function displayQuestionButtons(theme) {
     const end = Math.min(i + 20, totalQuestions);
     const button = document.createElement("button");
     button.textContent = `Preguntas ${start}-${end}`;
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (e) => {
+      e.preventDefault(); // Prevenir comportamiento por defecto
       localStorage.setItem(
         "questions",
         JSON.stringify(questions.slice(i, end))
@@ -57,7 +73,6 @@ async function displayQuestionButtons(theme) {
     buttonContainer.appendChild(button);
   }
 }
-
 async function getQuestionsFromExcel(file, sheetName) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

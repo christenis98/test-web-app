@@ -4,15 +4,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   questions.forEach((question, index) => {
     const questionDiv = document.createElement("div");
+    questionDiv.className = "question-container";
     questionDiv.innerHTML = `<p>${question.Pregunta}</p>`;
 
     ["A", "B", "C", "D"].forEach((option) => {
       if (question[`Respuesta ${option}`]) {
         const label = document.createElement("label");
+        label.className = "option-label";
         label.innerHTML = `
-                    <input type="radio" name="question${index}" value="${option}">
-                    ${question[`Respuesta ${option}`]}
-                `;
+          <input type="radio" name="question${index}" value="${option}">
+          ${question[`Respuesta ${option}`]}
+        `;
         questionDiv.appendChild(label);
         questionDiv.appendChild(document.createElement("br"));
       }
@@ -56,25 +58,28 @@ function checkAnswers(questions, answers) {
   let correctCount = 0;
 
   questions.forEach((question, index) => {
-    const selectedInput = form[`question${index}`].value;
+    const selectedInput = form[`question${index}`];
     const questionNumber = question.Pregunta.match(/^\d{1,3}/)[0];
     const correctAnswer = answers.find((answer) =>
-      answer.Pregunta.startsWith(questionNumber)
+      String(answer.Pregunta).startsWith(questionNumber)
     );
 
     const inputs = form.querySelectorAll(`input[name="question${index}"]`);
     inputs.forEach((input) => {
-      const label = input.parentElement; // Obtener el elemento padre que contiene el input y el texto
+      const label = input.parentElement;
       label.style.color = ""; // Reset color
 
       if (correctAnswer) {
         const correctOption = correctAnswer["Respuesta Correcta"].toLowerCase();
         const labelText = label.textContent.trim();
-        const selectedOption = labelText.charAt(0).toLowerCase(); // Obtener la primera letra del contenido de la etiqueta
+        const optionLetter = labelText.charAt(0).toLowerCase(); // Obtener la primera letra del contenido de la etiqueta
+
+        if (optionLetter === correctOption) {
+          label.style.color = "green"; // Mostrar siempre la respuesta correcta en verde
+        }
 
         if (input.checked) {
-          if (selectedOption === correctOption) {
-            label.style.color = "green";
+          if (optionLetter === correctOption) {
             correctCount++;
           } else {
             label.style.color = "red";
