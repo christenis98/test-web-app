@@ -43,10 +43,47 @@ async function getAnswersFromExcel(file) {
     reader.onload = (event) => {
       const data = new Uint8Array(event.target.result);
       const workbook = XLSX.read(data, { type: "array" });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const answers = XLSX.utils.sheet_to_json(sheet);
-      resolve(answers);
+
+      const sheetNames = workbook.SheetNames;
+
+      if (sheetNames.length === 1) {
+        const sheet = workbook.Sheets[sheetNames[0]];
+        const answers = XLSX.utils.sheet_to_json(sheet);
+        resolve(answers);
+        return;
+      }
+
+      // Mostrar selector
+      const container = document.getElementById("sheetSelectorContainer");
+      container.innerHTML = ""; // limpiar anteriores
+
+      const label = document.createElement("label");
+      label.textContent = "Select sheet: ";
+      const select = document.createElement("select");
+
+      sheetNames.forEach((name) => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
+      });
+
+      const confirmButton = document.createElement("button");
+      confirmButton.textContent = "Use this sheet";
+
+      confirmButton.addEventListener("click", () => {
+        const selectedSheet = select.value;
+        const sheet = workbook.Sheets[selectedSheet];
+        const answers = XLSX.utils.sheet_to_json(sheet);
+        container.innerHTML = ""; // limpiar después de seleccionar
+        resolve(answers);
+      });
+
+      container.appendChild(label);
+      container.appendChild(select);
+      container.appendChild(confirmButton);
     };
+
     reader.onerror = (error) => reject(error);
     reader.readAsArrayBuffer(file);
   });
