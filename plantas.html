@@ -234,8 +234,6 @@
       </button>
     </div>
 
-    // ...existing code...
-
     <script>
       let currentPlant = "";
       let correctAnswer = 0;
@@ -355,7 +353,7 @@
         "Árbol del paraíso (Melia azedarach)",
       ];
 
-      // Función para cargar la lista de plantas
+      // Función para cargar la lista de plantas (SIMPLIFICADA)
       function loadPlantsList() {
         plantsList = [...staticPlantsList];
         return plantsList;
@@ -366,7 +364,7 @@
         return name + ".png";
       }
 
-      // Función para cargar una pregunta
+      // Función para cargar una pregunta (CORREGIDA)
       async function loadQuestion() {
         gameActive = false;
         document.getElementById("loading").style.display = "block";
@@ -393,16 +391,15 @@
           const imageElement = document.getElementById("plant-image");
           const imagePath = `./images/${filename}`;
 
-          // Verificar si la imagen existe
-          const response = await fetch(imagePath, { method: "HEAD" });
-          if (response.ok) {
-            imageElement.src = imagePath;
-          } else {
-            // Si no existe, usar placeholder
-            imageElement.src = `https://via.placeholder.com/300x300/4CAF50/FFFFFF?text=${encodeURIComponent(
+          // Cargar imagen directamente (sin verificar con HEAD)
+          imageElement.src = imagePath;
+
+          // Manejar error de carga de imagen
+          imageElement.onerror = function () {
+            this.src = `https://via.placeholder.com/300x300/4CAF50/FFFFFF?text=${encodeURIComponent(
               currentPlant
             )}`;
-          }
+          };
 
           imageElement.style.display = "block";
 
