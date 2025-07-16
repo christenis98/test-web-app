@@ -235,247 +235,61 @@
     </div>
 
     <script>
-      // Lista de plantas específica del usuario
-      const plants = [
-        "Plátano de sombra",
-        "Olmo",
-        "Pino piñonero",
-        "Ciprés común",
-        "Jacaranda",
-        "Acacia de Constantinopla",
-        "Fresno",
-        "Almez",
-        "Tilo",
-        "Laurel",
-        "Adelfa",
-        "Arce",
-        "Olivo",
-        "Sauce llorón",
-        "Photinia",
-        "Madroño",
-        "Romero",
-        "Lavanda",
-        "Lilo",
-        "Morera",
-        "Ligustro",
-        "Durillo",
-        "Hibisco",
-        "Pittosporo japonés",
-        "Encina",
-        "Aligustre de Japón",
-        "Pyracantha",
-        "Callistemon",
-        "Celinda",
-        "Cotoneaster",
-        "Laurel cerezo",
-        "Granado",
-        "Boj",
-        "Adelfilla",
-        "Enebro",
-        "Aligustre oval",
-        "Árbol del amor",
-        "Madreselva",
-        "Sauce blanco",
-        "Ailanto",
-        "Roble común",
-        "Árbol del paraíso",
-        "Castaño de Indias",
-        "Abeto rojo",
-        "Pino carrasco",
-        "Eucalipto común",
-        "Álamo blanco",
-        "Álamo negro",
-        "Tamarindo",
-        "Morera negra",
-        "Falso pimentero",
-        "Aligustre lucido",
-        "Magnolio",
-        "Arce real",
-        "Ficus benjamina",
-        "Ciruelo rojo",
-        "Acacia de tres espinas",
-        "Falso plátano",
-        "Serbal de cazadores",
-        "Almez americano",
-        "Sophora japónica",
-        "Paulownia",
-        "Catalpa",
-        "Arce negundo",
-        "Peral de flor",
-        "Tetraclinis",
-        "Ginkgo",
-        "Árbol del coral",
-        "Cladrastis lutea",
-        "Petunia",
-        "Tagete",
-        "Salvia roja",
-        "Zinnia",
-        "Alegría de la casa",
-        "Begonia semperflorens",
-        "Verbena",
-        "Dalia",
-        "Gazania",
-        "Portulaca",
-        "Pensamiento",
-        "Prímula",
-        "Ciclamen",
-        "Caléndula",
-        "Bellis",
-        "Alhelí",
-        "Col ornamental",
-        "Miosotis",
-        "Ranúnculo",
-        "Viola cornuta",
-        "Brachychiton populneus",
-        "Parrotia",
-        "Liquidámbar",
-        "Albizia lebbeck",
-        "Koelreuteria",
-        "Sophora microphylla",
-        "Nyssa sylvatica",
-        "Cercidiphyllum japonicum",
-        "Pyrus pyraster",
-        "Sophora davidii",
-      ];
-
       let currentPlant = "";
       let correctAnswer = 0;
       let score = 0;
       let gameActive = false;
+      let plantsList = []; // Lista que se llenará dinámicamente
 
-      // Función para obtener imagen de planta desde Wikipedia API
-      async function getPlantImage(plantName) {
+      // Función para obtener lista de plantas desde la carpeta images
+      async function loadPlantsList() {
         try {
-          // Primero intentamos buscar la página
-          const searchResponse = await fetch(
-            `https://es.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
-              plantName
-            )}&format=json&origin=*`
-          );
-          const searchData = await searchResponse.json();
+          const response = await fetch("./images/");
+          const html = await response.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+          const links = doc.querySelectorAll("a[href]");
 
-          if (
-            searchData.query &&
-            searchData.query.search &&
-            searchData.query.search.length > 0
-          ) {
-            const pageTitle = searchData.query.search[0].title;
+          const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
+          const plants = [];
 
-            // Obtenemos la imagen de la página
-            const imageResponse = await fetch(
-              `https://es.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&titles=${encodeURIComponent(
-                pageTitle
-              )}&origin=*`
-            );
-            const imageData = await imageResponse.json();
-
-            const pages = imageData.query.pages;
-            const pageId = Object.keys(pages)[0];
-
-            if (pages[pageId].original) {
-              return {
-                image: pages[pageId].original.source,
-                name: plantName,
-              };
+          links.forEach((link) => {
+            const href = link.getAttribute("href");
+            if (
+              href &&
+              imageExtensions.some((ext) => href.toLowerCase().endsWith(ext))
+            ) {
+              // Extraer nombre del archivo sin extensión
+              const filename = href.split("/").pop();
+              const plantName = filename
+                .replace(/\.[^/.]+$/, "") // Quitar extensión
+                .replace(/_/g, " ") // Reemplazar _ por espacios
+                .replace(/\b\w/g, (l) => l.toUpperCase()); // Capitalizar primera letra de cada palabra
+              plants.push(plantName);
             }
+          });
+
+          plantsList = [...new Set(plants)]; // Eliminar duplicados
+
+          if (plantsList.length === 0) {
+            throw new Error(
+              "No se encontraron imágenes en la carpeta ./images/"
+            );
           }
 
-          // Si no encuentra en español, intenta en inglés
-          return await getPlantImageEnglish(plantName);
+          return plantsList;
         } catch (error) {
-          console.error("Error obteniendo imagen de Wikipedia ES:", error);
-          return await getPlantImageEnglish(plantName);
+          console.error("Error cargando lista de plantas:", error);
+          throw error;
         }
       }
 
-      // Función alternativa usando Wikipedia en inglés
-      async function getPlantImageEnglish(plantName) {
-        try {
-          // Mapeo de nombres comunes a nombres científicos o en inglés
-          const plantMappings = {
-            "Plátano de sombra": "Platanus hispanica",
-            Olmo: "Ulmus minor",
-            "Pino piñonero": "Pinus pinea",
-            "Ciprés común": "Cupressus sempervirens",
-            Jacaranda: "Jacaranda mimosifolia",
-            "Acacia de Constantinopla": "Albizia julibrissin",
-            Fresno: "Fraxinus angustifolia",
-            Almez: "Celtis australis",
-            Tilo: "Tilia platyphyllos",
-            Laurel: "Laurus nobilis",
-            Adelfa: "Nerium oleander",
-            Arce: "Acer campestre",
-            Olivo: "Olea europaea",
-            "Sauce llorón": "Salix babylonica",
-            Photinia: "Photinia fraseri",
-            Madroño: "Arbutus unedo",
-            Romero: "Rosmarinus officinalis",
-            Lavanda: "Lavandula angustifolia",
-            Lilo: "Syringa vulgaris",
-            Morera: "Morus alba",
-            Ligustro: "Ligustrum vulgare",
-            Durillo: "Viburnum tinus",
-            Hibisco: "Hibiscus syriacus",
-            "Pittosporo japonés": "Pittosporum tobira",
-            Encina: "Quercus ilex",
-            Ginkgo: "Ginkgo biloba",
-            "Eucalipto común": "Eucalyptus globulus",
-            Magnolio: "Magnolia grandiflora",
-            Petunia: "Petunia hybrida",
-            Dalia: "Dahlia pinnata",
-            Zinnia: "Zinnia elegans",
-            Pensamiento: "Viola wittrockiana",
-            Caléndula: "Calendula officinalis",
-          };
-
-          const searchTerm = plantMappings[plantName] || plantName;
-
-          const searchResponse = await fetch(
-            `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
-              searchTerm
-            )}&format=json&origin=*`
-          );
-          const searchData = await searchResponse.json();
-
-          if (
-            searchData.query &&
-            searchData.query.search &&
-            searchData.query.search.length > 0
-          ) {
-            const pageTitle = searchData.query.search[0].title;
-
-            const imageResponse = await fetch(
-              `https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&titles=${encodeURIComponent(
-                pageTitle
-              )}&origin=*`
-            );
-            const imageData = await imageResponse.json();
-
-            const pages = imageData.query.pages;
-            const pageId = Object.keys(pages)[0];
-
-            if (pages[pageId].original) {
-              return {
-                image: pages[pageId].original.source,
-                name: plantName,
-              };
-            }
-          }
-
-          // Si no encuentra imagen, usar imagen por defecto
-          return {
-            image: `https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png`,
-            name: plantName,
-          };
-        } catch (error) {
-          console.error("Error obteniendo imagen de Wikipedia EN:", error);
-          return {
-            image: `https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png`,
-            name: plantName,
-          };
-        }
+      // Función para convertir nombre a filename
+      function nameToFilename(name) {
+        return name.replace(/\s+/g, "_").toLowerCase();
       }
 
+      // Función para cargar una pregunta
       async function loadQuestion() {
         gameActive = false;
         document.getElementById("loading").style.display = "block";
@@ -485,51 +299,91 @@
         document.getElementById("next-button").style.display = "none";
         document.getElementById("error").style.display = "none";
 
-        // Seleccionar planta aleatoria
-        currentPlant = plants[Math.floor(Math.random() * plants.length)];
-
         try {
-          // Intentar obtener imagen real desde Wikipedia
-          const plantData = await getPlantImage(currentPlant);
+          // Cargar lista de plantas si está vacía
+          if (plantsList.length === 0) {
+            await loadPlantsList();
+          }
 
-          if (plantData) {
-            document.getElementById("plant-image").src = plantData.image;
-            document.getElementById("plant-image").style.display = "block";
+          // Seleccionar planta aleatoria
+          currentPlant =
+            plantsList[Math.floor(Math.random() * plantsList.length)];
 
-            // Crear opciones
-            const options = [currentPlant];
-            while (options.length < 4) {
-              const randomPlant =
-                plants[Math.floor(Math.random() * plants.length)];
-              if (!options.includes(randomPlant)) {
-                options.push(randomPlant);
+          // Crear nombre de archivo
+          const filename = nameToFilename(currentPlant);
+
+          // Intentar cargar imagen con diferentes extensiones
+          const imageElement = document.getElementById("plant-image");
+          const extensions = ["jpg", "jpeg", "png", "gif", "webp"];
+          let imageLoaded = false;
+
+          for (const ext of extensions) {
+            try {
+              const imagePath = `./images/${filename}.${ext}`;
+              const response = await fetch(imagePath, { method: "HEAD" });
+
+              if (response.ok) {
+                imageElement.src = imagePath;
+                imageLoaded = true;
+                break;
               }
+            } catch (e) {
+              // Continuar con la siguiente extensión
             }
+          }
 
-            // Mezclar opciones
-            const shuffledOptions = options.sort(() => Math.random() - 0.5);
-            correctAnswer = shuffledOptions.indexOf(currentPlant);
+          // Si no se carga la imagen, usar placeholder
+          if (!imageLoaded) {
+            imageElement.src = `https://via.placeholder.com/300x300/4CAF50/FFFFFF?text=${encodeURIComponent(
+              currentPlant
+            )}`;
+          }
 
-            // Mostrar opciones
-            const optionButtons = document.querySelectorAll(".option");
-            optionButtons.forEach((button, index) => {
+          imageElement.style.display = "block";
+
+          // Crear opciones: la correcta + 3 incorrectas
+          const options = [currentPlant];
+          const availableOptions = plantsList.filter(
+            (plant) => plant !== currentPlant
+          );
+
+          // Seleccionar 3 opciones incorrectas aleatoriamente
+          while (options.length < 4 && availableOptions.length > 0) {
+            const randomIndex = Math.floor(
+              Math.random() * availableOptions.length
+            );
+            options.push(availableOptions[randomIndex]);
+            availableOptions.splice(randomIndex, 1);
+          }
+
+          // Mezclar opciones
+          const shuffledOptions = options.sort(() => Math.random() - 0.5);
+          correctAnswer = shuffledOptions.indexOf(currentPlant);
+
+          // Mostrar opciones
+          const optionButtons = document.querySelectorAll(".option");
+          optionButtons.forEach((button, index) => {
+            if (index < shuffledOptions.length) {
               button.textContent = shuffledOptions[index];
               button.className = "option";
               button.disabled = false;
-            });
+              button.style.display = "block";
+            } else {
+              button.style.display = "none";
+            }
+          });
 
-            document.getElementById("loading").style.display = "none";
-            document.getElementById("question").style.display = "block";
-            document.getElementById("options").style.display = "grid";
-            gameActive = true;
-          } else {
-            throw new Error("No se pudo cargar la imagen");
-          }
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("question").style.display = "block";
+          document.getElementById("options").style.display = "grid";
+          gameActive = true;
         } catch (error) {
+          console.error("Error cargando pregunta:", error);
           document.getElementById("loading").style.display = "none";
           document.getElementById("error").style.display = "block";
-          document.getElementById("error").textContent =
-            "Error cargando la pregunta. Intenta de nuevo.";
+          document.getElementById(
+            "error"
+          ).textContent = `Error: ${error.message}. Asegúrate de que la carpeta images sea accesible desde el navegador.`;
 
           setTimeout(() => {
             loadQuestion();
