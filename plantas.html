@@ -234,59 +234,136 @@
       </button>
     </div>
 
+    // ...existing code...
+
     <script>
       let currentPlant = "";
       let correctAnswer = 0;
       let score = 0;
       let gameActive = false;
-      let plantsList = []; // Lista que se llenará dinámicamente
+      let plantsList = [];
 
-      // Función para obtener lista de plantas desde la carpeta images
-      async function loadPlantsList() {
-        try {
-          const response = await fetch("./images/");
-          const html = await response.text();
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, "text/html");
-          const links = doc.querySelectorAll("a[href]");
+      // Lista estática de plantas basada en tus archivos
+      const staticPlantsList = [
+        "Abeto rojo (Picea abies)",
+        "Acacia de Constantinopla (Albizia julibrissin)",
+        "Acacia de tres espinas (Gleditsia triacanthos)",
+        "Acacia falsa ( Robinia pseudoacacia )",
+        "Adelfa (Nerium oleander)",
+        "Adelfilla (Oenothera biennis)",
+        "Ailanto Árbol del cielo (Ailanthus altissima)",
+        "Albizia lebbeck (Albizia lebbeck)",
+        "Alegría de la casa (Impatiens walleriana)",
+        "Alhelí (Matthiola incana)",
+        "Aligustre de Japón (Ligustrum japonicum)",
+        "Aligustre lucido (Ligustrum lucidum)",
+        "Aligustre oval (Ligustrum ovalifolium)",
+        "Almez (Celtis australis)",
+        "Almez americano (Celtis occidentalis)",
+        "Arce negundo (Acer negundo)",
+        "Arce plateado ( acer saccharinum )",
+        "Arce real (Acer platanoides)",
+        "Begonia semperflorens (Begonia semperflorens)",
+        "Bellis  Margarita de los prados (Bellis perennis)",
+        "Boj (Buxus sempervirens)",
+        "Brachychiton  Árbol botella (Brachychiton populneus)",
+        "Buganvilla (Bougainvillea glabra)",
+        "Callistemon  (Callistemon citrinus)",
+        "Caléndula (Calendula officinalis)",
+        "Castaño de Indias (Aesculus hippocastanum)",
+        "Catalpa (Catalpa bignonioides)",
+        "Celinda (Philadelphus coronarius)",
+        "Ciclamen (Cyclamen persicum)",
+        "Ciprés común (Cupressus sempervirens)",
+        "Ciruelo rojo (Prunus cerasifera 'Nigra')",
+        "Cladrastis lutea (Cladrastis kentukea)",
+        "Col ornamental (Brassica oleracea var. acephala)",
+        "Cotoneaster (Cotoneaster horizontalis)",
+        "Dalia (Dahlia pinnata)",
+        "Dichondra (Dichondra repens)",
+        "Durillo (Viburnum tinus)",
+        "Encina (Quercus ilex)",
+        "Enebro (Juniperus communis)",
+        "Eucalipto común (Eucalyptus globulus)",
+        "Falso pimentero (Schinus molle)",
+        "Falso plátano (Platanus orientalis)",
+        "Ficus benjamina (Ficus benjamina)",
+        "Fresno (Fraxinus angustifolia)",
+        "Gazania (Gazania rigens)",
+        "Ginkgo (Ginkgo biloba)",
+        "Glicinia (Wisteria sinensis)",
+        "Granado (Punica granatum)",
+        "Hibisco (Hibiscus syriacus)",
+        "Hiedra común (Hedera helix)",
+        "Jacaranda (Jacaranda mimosifolia)",
+        "Jazmín (Jasminum officinale)",
+        "Koelreuteria  Jabonero de China (Koelreuteria paniculata)",
+        "Laurel (Laurus nobilis)",
+        "Laurel cerezo (Prunus laurocerasus)",
+        "Lavanda (Lavandula angustifolia)",
+        "Ligustro (Ligustrum vulgare)",
+        "Lilo (Syringa vulgaris)",
+        "Liquidámbar (Liquidambar styraciflua)",
+        "Madreselva (Lonicera japonica)",
+        "Madroño (Arbutus unedo)",
+        "Magnolio (Magnolia grandiflora)",
+        "Miosotis  Nomeolvides (Myosotis sylvatica)",
+        "Morera (Morus alba)",
+        "Morera negra (Morus nigra)",
+        "Nyssa sylvatica   Tupelo negro (Nyssa sylvatica)",
+        "Olivo (Olea europaea)",
+        "Olmo (Ulmus minor)",
+        "Parra virgen (Parthenocissus tricuspidata)",
+        "Parrotia  Árbol de hierro (Parrotia persica)",
+        "Paulownia (Paulownia tomentosa)",
+        "Pensamiento (Viola × wittrockiana)",
+        "Peral de flor (Pyrus calleryana)",
+        "Peral silvestre (Pyrus pyraster)",
+        "Petunia (Petunia hybrida)",
+        "Photinia (Photinia × fraseri)",
+        "Pino carrasco (Pinus halepensis)",
+        "Pino piñonero (Pinus pinea)",
+        "Pittosporo japonés (Pittosporum tobira)",
+        "Plátano de sombra (Platanus × hispanica)",
+        "Portulaca Flor de seda (Portulaca grandiflora)",
+        "Prímula (Primula acaulis)",
+        "Pyracantha (Pyracantha coccinea)",
+        "Ranúnculo (Ranunculus asiaticus)",
+        "Roble común (Quercus robur)",
+        "Romero (Rosmarinus officinalis)",
+        "Salvia roja (Salvia splendens)",
+        "Sauce blanco (Salix alba)",
+        "Sauce llorón (Salix babylonica)",
+        "Serbal de cazadores (Sorbus aucuparia)",
+        "Sophora davidii (Sophora davidii)",
+        "Sophora japónica (Styphnolobium japonicum)",
+        "Sophora microphylla (Sophora microphylla)",
+        "Tagete  Clavel de moro (Tagetes patula)",
+        "Tamarindo (Tamarix gallica)",
+        "Tetraclinis  Ciprés de Cartagena (Tetraclinis articulata)",
+        "Tilo (Tilia platyphyllos)",
+        "Tomillo (Thymus vulgaris)",
+        "Verbena (Verbena hybrida)",
+        "Vinca minor (Vinca, Hierba doncella)",
+        "Viola cornuta (Viola cornuta)",
+        "Zinnia (Zinnia elegans)",
+        "Álamo blanco (Populus alba)",
+        "Álamo negro (Populus nigra)",
+        "Árbol caramelo (Cercidiphyllum japonicum)",
+        "Árbol del amor (Cercis siliquastrum)",
+        "Árbol del coral (Erythrina crista-galli)",
+        "Árbol del paraíso (Melia azedarach)",
+      ];
 
-          const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
-          const plants = [];
-
-          links.forEach((link) => {
-            const href = link.getAttribute("href");
-            if (
-              href &&
-              imageExtensions.some((ext) => href.toLowerCase().endsWith(ext))
-            ) {
-              // Extraer nombre del archivo sin extensión
-              const filename = href.split("/").pop();
-              const plantName = filename
-                .replace(/\.[^/.]+$/, "") // Quitar extensión
-                .replace(/_/g, " ") // Reemplazar _ por espacios
-                .replace(/\b\w/g, (l) => l.toUpperCase()); // Capitalizar primera letra de cada palabra
-              plants.push(plantName);
-            }
-          });
-
-          plantsList = [...new Set(plants)]; // Eliminar duplicados
-
-          if (plantsList.length === 0) {
-            throw new Error(
-              "No se encontraron imágenes en la carpeta ./images/"
-            );
-          }
-
-          return plantsList;
-        } catch (error) {
-          console.error("Error cargando lista de plantas:", error);
-          throw error;
-        }
+      // Función para cargar la lista de plantas
+      function loadPlantsList() {
+        plantsList = [...staticPlantsList];
+        return plantsList;
       }
 
       // Función para convertir nombre a filename
       function nameToFilename(name) {
-        return name.replace(/\s+/g, "_").toLowerCase();
+        return name + ".png";
       }
 
       // Función para cargar una pregunta
@@ -302,7 +379,7 @@
         try {
           // Cargar lista de plantas si está vacía
           if (plantsList.length === 0) {
-            await loadPlantsList();
+            loadPlantsList();
           }
 
           // Seleccionar planta aleatoria
@@ -312,28 +389,16 @@
           // Crear nombre de archivo
           const filename = nameToFilename(currentPlant);
 
-          // Intentar cargar imagen con diferentes extensiones
+          // Cargar imagen
           const imageElement = document.getElementById("plant-image");
-          const extensions = ["jpg", "jpeg", "png", "gif", "webp"];
-          let imageLoaded = false;
+          const imagePath = `./images/${filename}`;
 
-          for (const ext of extensions) {
-            try {
-              const imagePath = `./images/${filename}.${ext}`;
-              const response = await fetch(imagePath, { method: "HEAD" });
-
-              if (response.ok) {
-                imageElement.src = imagePath;
-                imageLoaded = true;
-                break;
-              }
-            } catch (e) {
-              // Continuar con la siguiente extensión
-            }
-          }
-
-          // Si no se carga la imagen, usar placeholder
-          if (!imageLoaded) {
+          // Verificar si la imagen existe
+          const response = await fetch(imagePath, { method: "HEAD" });
+          if (response.ok) {
+            imageElement.src = imagePath;
+          } else {
+            // Si no existe, usar placeholder
             imageElement.src = `https://via.placeholder.com/300x300/4CAF50/FFFFFF?text=${encodeURIComponent(
               currentPlant
             )}`;
@@ -383,7 +448,7 @@
           document.getElementById("error").style.display = "block";
           document.getElementById(
             "error"
-          ).textContent = `Error: ${error.message}. Asegúrate de que la carpeta images sea accesible desde el navegador.`;
+          ).textContent = `Error: ${error.message}`;
 
           setTimeout(() => {
             loadQuestion();
